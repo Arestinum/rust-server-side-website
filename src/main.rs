@@ -1,17 +1,16 @@
-use axum::{routing::get, Router};
-use maud::{html, Markup};
+mod api;
+mod database;
+mod views;
 
-async fn hello_world() -> Markup {
-    html! {
-        h1 { "Hello, World!" }
-    }
-}
+use axum::{routing::get, Router};
 
 #[tokio::main]
 async fn main() {
+    database::sqlite::initialise_sqlite();
+
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
-        .route("/hello", get(|| hello_world()));
+        .route("/hello", get(|| views::index::index()));
 
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
